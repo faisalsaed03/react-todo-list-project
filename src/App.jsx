@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -14,8 +14,17 @@ export default function App() {
    
   ])
 
+  const [todoValue,setTodoValue] = useState("")
+
+  function persistData(newList){
+    localStorage.setItem('todos',JSON.stringify({todos:newList}))
+
+  }
+
+
   function handleAddTodos(newTodo){
     const newTodoList = [...todos,newTodo]
+    persistData(newTodoList)
     setTodos(newTodoList);
 
   }
@@ -28,23 +37,48 @@ export default function App() {
       
 
     )
+    persistData(newTodoList)
+
+
     setTodos(newTodoList);
 
     }
 
 
 
-
-    
-    
-
-
-
-
-  
+    function handleEditTodo(index){
+      const editedvalue = todos[index];
+      setTodoValue(editedvalue);
+      deleteItem(index);
 
 
 
+    }
+
+
+
+    useEffect(()=>{
+      if(!localStorage){
+        return
+      }
+      let localTodos = localStorage.getItem("todos")
+      if(!localTodos){
+        return
+      }
+
+      localTodos = JSON.parse(localTodos).todos
+      setTodos(localTodos)
+
+    },[])
+
+
+
+    const handlekeyPress = (e) => {
+      if (e.key ==='Enter'){
+        handleAddTodos(todoValue)
+        setTodoValue("")
+      }
+    }
 
 
 
@@ -52,8 +86,8 @@ export default function App() {
 
   return (
     <>
-      <TodoInput handleAddTodos={handleAddTodos}/>
-      <TodoList deleteItem={deleteItem} todos={todos}/>
+      <TodoInput handleAddTodos={handleAddTodos} todoValue={todoValue} setTodoValue={setTodoValue} handlekeyPress={handlekeyPress} />
+      <TodoList deleteItem={deleteItem} todos={todos} handleEditTodo={handleEditTodo} />
 
 
 
